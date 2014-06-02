@@ -13,7 +13,7 @@ class PCB; // Kernel's implementation of a user's thread
 class Thread {
 public:
 
-	void start(); 
+	void start();
 	void waitToComplete(); 
 	virtual ~Thread();
 	

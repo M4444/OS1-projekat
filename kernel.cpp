@@ -1,5 +1,6 @@
 #include <iostream.h>
 #include <dos.h>
+#include "thread.h"
 #include <schedule.h>
 
 // Zabranjuje prekide
@@ -16,6 +17,16 @@
 
 #define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
 
+volatile unsigned lockFlag = 1;	//	fleg za zabranu promene konteksta
+// Pomocne promenljive za prekid tajmera
+unsigned tsp;
+unsigned tss;
+unsigned tbp;
+
+volatile int brojac = 55;
+volatile int zahtevana_promena_konteksta = 0;
+
+/*
 class Thread {
 public:
 
@@ -36,39 +47,20 @@ protected:
 private:
 	PCB* myPCB;
 };
+*/
 
-Thread::Thread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice)
-	{
-		// Kreiranje procesa
-		lock
-		myPCB = new PCB();
-		if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;
-		unsigned* stek = new unsigned[stackSize];
-
-		stek[stackSize-1] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
-		stek[stackSize-2] = FP_SEG(PCB::wrapper);
-		stek[stackSize-3] = FP_OFF(PCB::wrapper);
-
-		myPCB->sp = FP_OFF(stek+stackSize-12); 	//	svi sacuvani registri pri ulasku u interrupt rutinu
-		myPCB->ss = FP_SEG(stek+stackSize-12);
-		myPCB->bp = FP_OFF(stek+stackSize-12);
-		myPCB->zavrsio = 0;
-		myPCB->kvant = timeSlice;
-		unlock
-	}	
-
-void dispatch()	 // sinhrona promena konteksta 
+void Thread::start()
 {
-	asm cli;
-	zahtevana_promena_konteksta = 1;
-	timer();
-	asm sti;
+	Scheduler::put(myPCB);
 }
+
+void Thread::~Thread(){}
 
 class PCB
 {
 private:
-	Thread myThread;
+	Thread *myThread;
+	friend class Thread;
 	
 	unsigned sp;
 	unsigned ss;
@@ -77,26 +69,40 @@ private:
 	unsigned zavrsio;
 	unsigned kvant;
 	
-	volatile static PCB* running; 
+	static volatile PCB *running; 
 	static void wrapper();
+	friend void interrupt timer();
 };
+
+volatile PCB *PCB::running=NULL;
 
 void PCB::wrapper()
 {
 	PCB::running->myThread->run();
 	// kad zavrsi...
-	running->zavrsio = 1;
+	PCB::running->zavrsio = 1;
 	dispatch(); 
 }
 
-volatile unsigned lockFlag = 1;	//	fleg za zabranu promene konteksta
-// Pomocne promenljive za prekid tajmera
-unsigned tsp;
-unsigned tss;
-unsigned tbp;
+Thread::Thread(StackSize stackSize, Time timeSlice)
+{
+	// Kreiranje procesa
+	lock
+	myPCB = new PCB();
+	if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;
+	unsigned* stek = new unsigned[stackSize];
 
-volatile int brojac = 55;
-volatile int zahtevana_promena_konteksta = 0;
+	stek[stackSize-1] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
+	stek[stackSize-2] = FP_SEG(PCB::wrapper);
+	stek[stackSize-3] = FP_OFF(PCB::wrapper);
+
+	myPCB->sp = FP_OFF(stek+stackSize-12); 	//	svi sacuvani registri pri ulasku u interrupt rutinu
+	myPCB->ss = FP_SEG(stek+stackSize-12);
+	myPCB->bp = FP_OFF(stek+stackSize-12);
+	myPCB->zavrsio = 0;
+	myPCB->kvant = timeSlice;
+	unlock
+}	
 
 void interrupt timer()	//	prekidna rutina
 {
@@ -160,6 +166,14 @@ void interrupt timer()	//	prekidna rutina
 	zahtevana_promena_konteksta = 0;
 }
 
+void dispatch()	 // sinhrona promena konteksta 
+{
+	asm cli;
+	zahtevana_promena_konteksta = 1;
+	timer();
+	asm sti;
+}
+
 unsigned oldTimerOFF, oldTimerSEG; // stara prekidna rutina
 // postavlja novu prekidnu rutinu
 void inic()
@@ -214,43 +228,46 @@ void restore()
 	}
 }
 
-public Slova : Thread
+class Slova : public Thread
 {
 public:
-	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(1024,40){}
+	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(1024,40){ id = ++tekID; }
 private:
-	static ID tekID=0;
-	ID id = ++tekID;
-	virtual run()
-	{
-		for (int i =0; i < 30; ++i)
-		{
-			lockCout
-			cout<<"id = "<id<" i = "<<i<<endl;
-			unlockCout
-			
-			for (int k = 0; k<10000; ++k)
-				for (int j = 0; j <30000; ++j);
-		}
-		//exitThread();
-	}	
+	static ID tekID;
+	ID id;
+	virtual void run();
 };
 
-Slova a,b,m;
+ID Slova::tekID=0;
+
+void Slova::run()
+{
+	for (int i =0; i < 30; ++i)
+	{
+		lockCout
+		cout<<"id = "<<id<<" i = "<<i<<endl;
+		unlockCout
+		
+		for (int k = 0; k<10000; ++k)
+			for (int j = 0; j <30000; ++j);
+	}
+	//exitThread();
+}
+
+Slova *a,*b,*m;
 void doSomething()
 {
 	lock
-	a = Slova(1024,40);
+	a = new Slova(1024,40);
 	cout<<"napravio a"<<endl;
 	a->start();
 	
-	b = Slova(1024,20)
+	b = new Slova(1024,20);
 	cout<<"napravio b"<<endl;
 	b->start();
 
-	m = Slova(1024,20)
-	cout<<"napravio b"<<endl;
-	PCB::running = m->PCB;
+	m = new Slova(1024,20);
+	m->start();
 	unlock
 
 	for (int i = 0; i < 15; ++i) 
