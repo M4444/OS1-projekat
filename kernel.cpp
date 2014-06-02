@@ -8,45 +8,54 @@
 // Dozvoljava prekide
 #define unlock asm sti
 
+// Zabrana ispisa
+#define lockCout lockFlag=0;
+// Dozvola ispisa
+#define unlockCout 	lockFlag=1;\
+					if (zahtevana_promena_konteksta) dispatch();
+
 #define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
 
 class Thread {
 public:
 
-	//void start(); 			TODO
+	void start()
+	{
+		Scheduler::put(myPCB);
+	}
 	//void waitToComplete(); 	TODO
 	//virtual ~Thread();		TODO
 	
 protected:
 	friend class PCB;
 	
-	Thread (StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice)
-	{
-		// Kreiranje procesa
-			lock
-			myPCB = new PCB();			/*	!!!!	oprez sa operatorom new - nije thread-safe	*/
-			if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;
-			unsigned* stek = new unsigned[stackSize];
-
-			stek[1023] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
-			stek[1022] = FP_SEG(PCB::wrapper);
-			stek[1021] = FP_OFF(PCB::wrapper);
-
-			myPCB->sp = FP_OFF(stek+1012); 	//	svi sacuvani registri pri ulasku u interrupt rutinu
-			myPCB->ss = FP_SEG(stek+1012);
-			myPCB->bp = FP_OFF(stek+1012);
-			myPCB->zavrsio = 0;
-			myPCB->kvant = timeSlice;
-		//	//
-		cout << "Naprazvljena je nova nit." << endl;		/*	!!!!	*/
-		Scheduler::put(myPCB);
-	}	
+	Thread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);
 	
 	virtual void run() {}
 	
 private:
 	PCB* myPCB;
 };
+
+Thread::Thread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice)
+	{
+		// Kreiranje procesa
+		lock
+		myPCB = new PCB();
+		if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;
+		unsigned* stek = new unsigned[stackSize];
+
+		stek[stackSize-1] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
+		stek[stackSize-2] = FP_SEG(PCB::wrapper);
+		stek[stackSize-3] = FP_OFF(PCB::wrapper);
+
+		myPCB->sp = FP_OFF(stek+stackSize-12); 	//	svi sacuvani registri pri ulasku u interrupt rutinu
+		myPCB->ss = FP_SEG(stek+stackSize-12);
+		myPCB->bp = FP_OFF(stek+stackSize-12);
+		myPCB->zavrsio = 0;
+		myPCB->kvant = timeSlice;
+		unlock
+	}	
 
 void dispatch()	 // sinhrona promena konteksta 
 {
@@ -75,9 +84,9 @@ private:
 void PCB::wrapper()
 {
 	PCB::running->myThread->run();
-	//...
-	//	PCB::running->zavrsio = 1;
-	//	...
+	// kad zavrsi...
+	running->zavrsio = 1;
+	dispatch(); 
 }
 
 volatile unsigned lockFlag = 1;	//	fleg za zabranu promene konteksta
@@ -108,9 +117,9 @@ void interrupt timer()	//	prekidna rutina
 				mov tbp, bp
 			}
 
-			running->sp = tsp;
-			running->ss = tss;
-			running->bp = tbp;
+			PCB::running->sp = tsp;
+			PCB::running->ss = tss;
+			PCB::running->bp = tbp;
 			
 			// ispis unutar prekidne rutine
 			lockCout
@@ -123,14 +132,14 @@ void interrupt timer()	//	prekidna rutina
 			lockFlag=1;
 			// kraj ispisa
 			
-			if (! running->zavrsio) Scheduler::put((PCB *) running);
-			running=Scheduler::get();		// Scheduler
+			if (! PCB::running->zavrsio) Scheduler::put((PCB *) PCB::running);
+			PCB::running=Scheduler::get();		// Scheduler
 	  
-			tsp = running->sp;
-			tss = running->ss; 
-			tbp = running->bp;
+			tsp = PCB::running->sp;
+			tss = PCB::running->ss; 
+			tbp = PCB::running->bp;
 
-			brojac = running->kvant;
+			brojac = PCB::running->kvant;
 
 			asm {
 				mov sp, tsp   // restore sp
@@ -203,6 +212,57 @@ void restore()
 		
 		sti
 	}
+}
+
+public Slova : Thread
+{
+public:
+	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(1024,40){}
+private:
+	static ID tekID=0;
+	ID id = ++tekID;
+	virtual run()
+	{
+		for (int i =0; i < 30; ++i)
+		{
+			lockCout
+			cout<<"id = "<id<" i = "<<i<<endl;
+			unlockCout
+			
+			for (int k = 0; k<10000; ++k)
+				for (int j = 0; j <30000; ++j);
+		}
+		//exitThread();
+	}	
+};
+
+Slova a,b,m;
+void doSomething()
+{
+	lock
+	a = Slova(1024,40);
+	cout<<"napravio a"<<endl;
+	a->start();
+	
+	b = Slova(1024,20)
+	cout<<"napravio b"<<endl;
+	b->start();
+
+	m = Slova(1024,20)
+	cout<<"napravio b"<<endl;
+	PCB::running = m->PCB;
+	unlock
+
+	for (int i = 0; i < 15; ++i) 
+	{
+		lock
+		cout<<"main "<<i<<endl;
+		unlock
+
+		for (int j = 0; j< 30000; ++j)
+			for (int k = 0; k < 30000; ++k);
+	}
+	cout<<"Happy End"<<endl;
 }
 
 int main()
