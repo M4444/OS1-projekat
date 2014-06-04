@@ -23,7 +23,7 @@ unsigned tsp;
 unsigned tss;
 unsigned tbp;
 
-volatile int brojac = 55;
+volatile int brojac = 20;
 volatile int zahtevana_promena_konteksta = 0;
 
 /*
@@ -72,13 +72,23 @@ private:
 	static volatile PCB *running; 
 	static void wrapper();
 	friend void interrupt timer();
+	friend void doSomething();
 };
 
 volatile PCB *PCB::running=NULL;
 
 void PCB::wrapper()
 {
-	PCB::running->myThread->run();
+	//PCB::running->myThread->run();
+	for (int i =0; i < 30; ++i)
+	{
+		lockCout
+		cout<<"id = "<<"1 ili 2"<<" i = "<<i<<endl;
+		unlockCout
+		
+		for (int k = 0; k<10000; ++k)
+			for (int j = 0; j <30000; ++j);
+	}
 	// kad zavrsi...
 	PCB::running->zavrsio = 1;
 	dispatch(); 
@@ -89,7 +99,7 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 	// Kreiranje procesa
 	lock
 	myPCB = new PCB();
-	if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;
+	if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;	/*	!!!!	takodje proveriti da li je stek premali, a i na drugim mestima */
 	unsigned* stek = new unsigned[stackSize];
 
 	stek[stackSize-1] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
@@ -129,7 +139,7 @@ void interrupt timer()	//	prekidna rutina
 			
 			// ispis unutar prekidne rutine
 			lockCout
-			cout<< "Promena konteksta!  Brojac= " << brojac << endl; 
+			cout<< "Promena konteksta!  Brojac = " << brojac << endl; 
 				//	ako neko vec vrsi ispis, lockFlag je vec na 0 
 				//	i zato se nece ni poceti promena konteksta, pa samim tim
 				//	se ne moze desiti ni ovaj ispis (ne moze se desiti paralelan
@@ -231,8 +241,9 @@ void restore()
 class Slova : public Thread
 {
 public:
-	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(1024,40){ id = ++tekID; }
+	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice){ id = ++tekID; }
 private:
+	friend PCB;
 	static ID tekID;
 	ID id;
 	virtual void run();
@@ -267,7 +278,7 @@ void doSomething()
 	b->start();
 
 	m = new Slova(1024,20);
-	m->start();
+	PCB::running = m->myPCB;
 	unlock
 
 	for (int i = 0; i < 15; ++i) 

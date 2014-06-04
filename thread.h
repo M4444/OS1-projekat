@@ -24,6 +24,7 @@ protected:
 	
 private:
 	PCB* myPCB;
+	friend void doSomething();
 };
 
  void dispatch ();
