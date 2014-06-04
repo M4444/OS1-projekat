@@ -14,10 +14,13 @@ unsigned tbp;
 volatile int brojac = 20;
 volatile int zahtevana_promena_konteksta = 0;
 
-/*	u ovoj funkciji dodati poziv tick();	*/
 void interrupt timer()	//	prekidna rutina
 {
-	if (!zahtevana_promena_konteksta) brojac--; 
+	if (!zahtevana_promena_konteksta)
+	{	
+		brojac--;
+		tick();
+	}		
 	if (brojac == 0 || zahtevana_promena_konteksta) 
 	{
 		if (lockFlag)

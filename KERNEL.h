@@ -21,4 +21,6 @@ void interrupt timer();
 void inic();
 void restore();
 
+void tick();	//	poziva se u funkciji timer() da bi korisnik bio svestan protoka vremena
+
 #endif

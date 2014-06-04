@@ -1,7 +1,7 @@
 #include "thread.h"
 #include "PCB.h"
-#include <iostream.h>
 #include "KERNEL.h"
+#include <iostream.h>
 
 class Slova : public Thread
 {
@@ -29,6 +29,12 @@ void Slova::run()
 	//exitThread();
 }
 
+volatile int cnt = 0;
+void tick()
+{
+  cnt++;
+}
+
 Slova *a,*b,*m;
 void doSomething()
 {
@@ -54,7 +60,10 @@ void doSomething()
 		for (int j = 0; j< 30000; ++j)
 			for (int k = 0; k < 30000; ++k);
 	}
-	cout<<"Happy End"<<endl;
+	lock
+	cout << "cnt = "<<cnt<< endl;
+	unlock
+	cout << "Happy End" << endl;
 }
 
 int main()
