@@ -1,21 +1,9 @@
 #include <iostream.h>
 #include <dos.h>
 #include "thread.h"
+#include "PCB.h"
 #include <schedule.h>
-
-// Zabranjuje prekide
-#define lock asm cli
-
-// Dozvoljava prekide
-#define unlock asm sti
-
-// Zabrana ispisa
-#define lockCout lockFlag=0;
-// Dozvola ispisa
-#define unlockCout 	lockFlag=1;\
-					if (zahtevana_promena_konteksta) dispatch();
-
-#define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
+#include "KERNEL.h"
 
 volatile unsigned lockFlag = 1;	//	fleg za zabranu promene konteksta
 // Pomocne promenljive za prekid tajmera
@@ -26,97 +14,7 @@ unsigned tbp;
 volatile int brojac = 20;
 volatile int zahtevana_promena_konteksta = 0;
 
-/*
-class Thread {
-public:
-
-	void start()
-	{
-		Scheduler::put(myPCB);
-	}
-	//void waitToComplete(); 	TODO
-	//virtual ~Thread();		TODO
-	
-protected:
-	friend class PCB;
-	
-	Thread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);
-	
-	virtual void run() {}
-	
-private:
-	PCB* myPCB;
-};
-*/
-
-void Thread::start()
-{
-	Scheduler::put(myPCB);
-}
-
-void Thread::~Thread(){}
-
-class PCB
-{
-private:
-	Thread *myThread;
-	friend class Thread;
-	
-	unsigned sp;
-	unsigned ss;
-	unsigned bp;
-	
-	unsigned zavrsio;
-	unsigned kvant;
-	
-	static volatile PCB *running; 
-	static void wrapper();
-	friend void interrupt timer();
-	friend void doSomething();
-};
-
-volatile PCB *PCB::running=NULL;
-
-void PCB::wrapper()
-{
-	PCB::running->myThread->run();
-	/*
-	for (int i =0; i < 30; ++i)
-	{
-		lockCout
-		cout<<"id = "<<"1 ili 2"<<" i = "<<i<<endl;
-		unlockCout
-		
-		for (int k = 0; k<10000; ++k)
-			for (int j = 0; j <30000; ++j);
-	}
-	*/
-	// kad zavrsi...
-	PCB::running->zavrsio = 1;
-	dispatch(); 
-}
-
-Thread::Thread(StackSize stackSize, Time timeSlice)
-{
-	// Kreiranje procesa
-	lock
-	myPCB = new PCB();
-	myPCB->myThread = this;
-	if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;	/*	!!!!	takodje proveriti da li je stek premali, a i na drugim mestima */
-	unsigned* stek = new unsigned[stackSize];
-
-	stek[stackSize-1] = 0x200;	//	setovan I fleg u pocetnom PSW-u za nit
-	stek[stackSize-2] = FP_SEG(PCB::wrapper);
-	stek[stackSize-3] = FP_OFF(PCB::wrapper);
-
-	myPCB->sp = FP_OFF(stek+stackSize-12); 	//	svi sacuvani registri pri ulasku u interrupt rutinu
-	myPCB->ss = FP_SEG(stek+stackSize-12);
-	myPCB->bp = FP_OFF(stek+stackSize-12);
-	myPCB->zavrsio = 0;
-	myPCB->kvant = timeSlice;
-	unlock
-}	
-
+/*	u ovoj funkciji dodati poziv tick();	*/
 void interrupt timer()	//	prekidna rutina
 {
 	if (!zahtevana_promena_konteksta) brojac--; 
@@ -179,14 +77,6 @@ void interrupt timer()	//	prekidna rutina
 	zahtevana_promena_konteksta = 0;
 }
 
-void dispatch()	 // sinhrona promena konteksta 
-{
-	asm cli;
-	zahtevana_promena_konteksta = 1;
-	timer();
-	asm sti;
-}
-
 unsigned oldTimerOFF, oldTimerSEG; // stara prekidna rutina
 // postavlja novu prekidnu rutinu
 void inic()
@@ -239,70 +129,5 @@ void restore()
 		
 		sti
 	}
-}
-
-class Slova : public Thread
-{
-public:
-	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice){ id = ++tekID; }
-private:
-	static ID tekID;
-	ID id;
-	virtual void run();
-};
-
-ID Slova::tekID=0;
-
-void Slova::run()
-{
-	for (int i =0; i < 30; ++i)
-	{
-		lockCout
-		cout<<"id = "<<id<<" i = "<<i<<endl;
-		unlockCout
-		
-		for (int k = 0; k<10000; ++k)
-			for (int j = 0; j <30000; ++j);
-	}
-	//exitThread();
-}
-
-Slova *a,*b,*m;
-void doSomething()
-{
-	lock
-	a = new Slova(1024,40);
-	cout<<"napravio a"<<endl;
-	a->start();
-	
-	b = new Slova(1024,20);
-	cout<<"napravio b"<<endl;
-	b->start();
-
-	m = new Slova(1024,20);
-	PCB::running = m->myPCB;
-	unlock
-
-	for (int i = 0; i < 15; ++i) 
-	{
-		lock
-		cout<<"main "<<i<<endl;
-		unlock
-
-		for (int j = 0; j< 30000; ++j)
-			for (int k = 0; k < 30000; ++k);
-	}
-	cout<<"Happy End"<<endl;
-}
-
-int main()
-{
-	inic();
-	
-	doSomething();
-	
-	restore();
- 
-	return 0;
 }
 
