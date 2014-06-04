@@ -79,7 +79,8 @@ volatile PCB *PCB::running=NULL;
 
 void PCB::wrapper()
 {
-	//PCB::running->myThread->run();
+	PCB::running->myThread->run();
+	/*
 	for (int i =0; i < 30; ++i)
 	{
 		lockCout
@@ -89,6 +90,7 @@ void PCB::wrapper()
 		for (int k = 0; k<10000; ++k)
 			for (int j = 0; j <30000; ++j);
 	}
+	*/
 	// kad zavrsi...
 	PCB::running->zavrsio = 1;
 	dispatch(); 
@@ -99,6 +101,7 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 	// Kreiranje procesa
 	lock
 	myPCB = new PCB();
+	myPCB->myThread = this;
 	if (stackSize>MAX_STACK_SIZE) stackSize = MAX_STACK_SIZE;	/*	!!!!	takodje proveriti da li je stek premali, a i na drugim mestima */
 	unsigned* stek = new unsigned[stackSize];
 
@@ -243,7 +246,6 @@ class Slova : public Thread
 public:
 	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice){ id = ++tekID; }
 private:
-	friend PCB;
 	static ID tekID;
 	ID id;
 	virtual void run();
