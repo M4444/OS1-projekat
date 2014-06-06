@@ -2,7 +2,7 @@
 #ifndef _PCB_h_
 #define _PCB_h_
 
-#include "thread.h"
+class Thread;
 
 class PCB
 {
@@ -19,8 +19,9 @@ private:
 	
 	static volatile PCB *running; 
 	static void wrapper();
-	friend void interrupt timer();
-	friend void doSomething();
+	static void radi(Thread *);
+	friend void interrupt timer();	
+	friend void doSomething();		/*	!!!!	resiti na drugi nacin	*/
 };
 
 #endif

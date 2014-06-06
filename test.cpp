@@ -48,7 +48,7 @@ void doSomething()
 	b->start();
 
 	m = new Slova(1024,20);
-	PCB::running = m->myPCB;
+	PCB::radi(m);	/*	!!!!	resiti na drugi nacin	*/	
 	unlock
 
 	for (int i = 0; i < 15; ++i) 

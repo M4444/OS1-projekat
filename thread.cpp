@@ -6,25 +6,9 @@
 
 #define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
 
-/*
-class Thread {
-public:
 
-	void start();
-	//void waitToComplete(); 	TODO
-	//virtual ~Thread();		TODO
-	
-protected:
-	friend class PCB;
-	
-	Thread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice);
-	
-	virtual void run() {}
-	
-private:
-	PCB* myPCB;
-};
-*/
+//void waitToComplete(); 	TODO
+//virtual ~Thread();		TODO
 
 void Thread::start()
 {
