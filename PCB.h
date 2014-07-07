@@ -16,12 +16,13 @@ private:
 	
 	unsigned zavrsio;
 	unsigned kvant;
+	unsigned neogranicen; 
 	
 	static volatile PCB *running; 
 	static void wrapper();
-	static void radi(Thread *);
+	
 	friend void interrupt timer();	
-	friend void doSomething();		/*	!!!!	resiti na drugi nacin	*/
+	friend void takeCont(PCB *);
 };
 
 #endif

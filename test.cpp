@@ -19,9 +19,9 @@ void Slova::run()
 {
 	for (int i =0; i < 30; ++i)
 	{
-		lockCout
-		cout<<"id = "<<id<<" i = "<<i<<endl;
-		unlockCout
+		lockTake
+		cout<<"id"<<id<<" i = "<<i<<endl;
+		unlockTake
 		
 		for (int k = 0; k<10000; ++k)
 			for (int j = 0; j <30000; ++j);
@@ -46,15 +46,12 @@ void doSomething()
 	b = new Slova(1024,20);
 	cout<<"napravio b"<<endl;
 	b->start();
-
-	m = new Slova(1024,20);
-	PCB::radi(m);	/*	!!!!	resiti na drugi nacin	*/	
 	unlock
 
 	for (int i = 0; i < 15; ++i) 
 	{
 		lock
-		cout<<"main "<<i<<endl;
+		cout<<"usrMain "<<i<<endl;
 		unlock
 
 		for (int j = 0; j< 30000; ++j)
@@ -66,13 +63,9 @@ void doSomething()
 	cout << "Happy End" << endl;
 }
 
-int main()
-{
-	inic();
-	
+int userMain()
+{	
 	doSomething();
 	
-	restore();
- 
 	return 0;
 }

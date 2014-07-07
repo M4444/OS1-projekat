@@ -3,13 +3,10 @@
 
 //virtual ~Semaphore ();	TODO
 
-		//virtual void wait ();
-		//virtual void signal();
-
 virtual Semaphore::Semaphore (int init=1)
 {
 	lock
-	myImpl = new KernelSem();
+	myImpl = new KernelSem();	//	prosledjivanje argumenata kostruktoru moze da poveca vreme zakljucavanja
 	unlock
 	myImpl->mySem = this;
 	myImpl->mySem.val = init;
@@ -17,21 +14,22 @@ virtual Semaphore::Semaphore (int init=1)
 
 virtual void wait ()
 {
-	val--;		/*	ne moze direktno	*/
-	if(val<0)
+	lockTake
+	if(--myImpl.val<0)
 	{
-		myImpl.suspend(PCB::running);
-		/*	prebaci kontekst na myImpl.getWaiting();	*/
+		myImpl.block();
 	}
+	unlockTake
 }
 
 virtual void signal()
 {
-	val++;		/*	atomicno (?)	*/
-	if(val<=0)
+	lockTake
+	if(myImpl.val++<0)
 	{
-		Scheduler::put(myImpl.getWaiting());
+		myImpl.deblock();
 	}
+	unlockTake
 }
 
 int Semaphore::val()

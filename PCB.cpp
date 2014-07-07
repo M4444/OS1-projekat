@@ -10,8 +10,3 @@ void PCB::wrapper()
 	PCB::running->zavrsio = 1;
 	dispatch(); 
 }
-
-void PCB::radi(Thread *t)
-{
-	PCB::running = t->myPCB;
-}

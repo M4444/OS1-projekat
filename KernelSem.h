@@ -11,6 +11,7 @@ class KernelSem
 private:
 	volatile int val;
 	Semaphore *mySem;
+	friend class Semaphore;
 	
 	friend class Queue 
 	{
@@ -31,20 +32,20 @@ private:
 			posl = (!prvi ? prvi : posl->sled) = new Elem(*p);
 			return *this;
 		}
-		PCB izvadi()
+		PCB *izvadi()
 		{
-			PCB i=prvi;
-			prvi = i->sled;
+			PCB *i=prvi.pcb;
+			prvi = prvi->sled;
 			return i;
 		}
 	public:                                 // Konstruktori:
 		Queue() { prvi = posl = 0; } 		// - podrazumevani,
 		~Queue();                           // Destruktor.
 	};
+	Queue blocked;
 	
-	
-	void suspend(PCB *);
-	PCB* getWaiting();
+	void block();
+	void deblock();
 };
 
 #endif

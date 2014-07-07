@@ -17,7 +17,7 @@ void Thread::start()
 
 Thread::~Thread()
 {
-	
+	/*	TODO	*/
 }
 
 Thread::Thread(StackSize stackSize, Time timeSlice)
@@ -37,7 +37,17 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 	myPCB->ss = FP_SEG(stek+stackSize-12);
 	myPCB->bp = FP_OFF(stek+stackSize-12);
 	myPCB->zavrsio = 0;
-	myPCB->kvant = timeSlice;
+	if (timeSlice != 0)
+	{
+		myPCB->kvant = timeSlice;
+		myPCB->neogranicen = 0;
+		
+	}
+	else 
+	{
+		myPCB->kvant = 0;
+		myPCB->neogranicen = 1;
+	}
 	unlock
 }	
 

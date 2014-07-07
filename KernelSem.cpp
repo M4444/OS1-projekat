@@ -1,19 +1,22 @@
 #include "KernelSem.h"
 
-void KernelSem::suspend(PCB *pcb)
+void KernelSem::block()
 {
-	Queue::dodaj(pcb);
+	this.blocked.dodaj(PCB::running);
+	takeCont(izvadi());
 }
 
-PCB* KernelSem::getWaiting()
+void KernelSem::deblock()
 {
-	return Queue::izvadi();
+	Scheduler::put(this.blocked.izvadi());
 }
 
 KernelSem::Queue::~Queue()  			// Destruktor.
 {           
 	while (prvi) 
 	{	 
-		Elem* stari = prvi; prvi = prvi->sled; delete stari;
+		Elem* stari = prvi; 
+		prvi = prvi->sled; 
+		delete stari;
 	}
 }

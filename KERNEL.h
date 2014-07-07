@@ -9,18 +9,21 @@
 #define unlock asm sti
 
 // Zabrana ispisa
-#define lockCout lockFlag=0;
+#define lockTake lockFlag=0;
 // Dozvola ispisa
-#define unlockCout 	lockFlag=1;\
+#define unlockTake 	lockFlag=1;\
 					if (zahtevana_promena_konteksta) dispatch();
 					
 extern volatile int zahtevana_promena_konteksta;
 extern volatile unsigned lockFlag;
 
 void interrupt timer();
+void takeCont(PCB *);
 void inic();
 void restore();
 
 void tick();	//	poziva se u funkciji timer() da bi korisnik bio svestan protoka vremena
+
+int userMain();
 
 #endif
