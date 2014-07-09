@@ -2,8 +2,6 @@
 #ifndef _ksem_h_
 #define _ksem_h_
 
-//#include "PCB.h"
-
 class Semaphore;
 class PCB;
 

@@ -19,6 +19,7 @@ private:
 	unsigned zavrsio;
 	unsigned kvant;
 	unsigned neogranicen; 
+	unsigned blokiran;
 	
 	//Semaphore *sem;
 	
@@ -26,7 +27,6 @@ private:
 	static void wrapper();
 	
 	friend void interrupt timer();	
-	friend void takeContext(PCB *);
 };
 
 #endif

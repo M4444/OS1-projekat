@@ -3,6 +3,7 @@
 #include "KERNEL.h"
 #include <schedule.h>
 #include <dos.h>
+#include <iostream.h>
 
 #define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
 
@@ -42,11 +43,11 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 	myPCB->ss = FP_SEG(stek+stackSize-12);
 	myPCB->bp = FP_OFF(stek+stackSize-12);
 	myPCB->zavrsio = 0;
+	myPCB->blokiran = 0;
 	if (timeSlice != 0)
 	{
 		myPCB->kvant = timeSlice;
 		myPCB->neogranicen = 0;
-		
 	}
 	else 
 	{
@@ -58,8 +59,8 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 
 void dispatch()	 // sinhrona promena konteksta 
 {
-	asm cli;
+	lock
 	zahtevana_promena_konteksta = 1;
 	timer();
-	asm sti;
+	unlock
 }

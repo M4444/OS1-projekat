@@ -18,7 +18,6 @@ extern volatile int zahtevana_promena_konteksta;
 extern volatile unsigned lockFlag;
 
 void interrupt timer();
-//void takeContext(PCB *);
 void inic();
 void restore();
 

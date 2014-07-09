@@ -7,7 +7,6 @@
 
 Semaphore::Semaphore(int init)
 {
-	
 	lock
 	myImpl = new KernelSem();	//	prosledjivanje argumenata kostruktoru moze da poveca vreme zakljucavanja
 	myImpl->mySem = this;
@@ -23,9 +22,10 @@ Semaphore::~Semaphore()
 void Semaphore::wait()
 {
 	lockTake
-	if(--myImpl->val<0)
+	if(--(myImpl->val)<0)
 	{
 		myImpl->block();
+		dispatch();
 	}
 	unlockTake
 }
@@ -33,7 +33,7 @@ void Semaphore::wait()
 void Semaphore::signal()
 {
 	lockTake
-	if(myImpl->val++<0)
+	if((myImpl->val++)<0)
 	{
 		myImpl->deblock();
 	}

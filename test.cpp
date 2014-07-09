@@ -4,6 +4,8 @@
 #include "semaphor.h"
 #include <iostream.h>
 
+Semaphore semCD=Semaphore(0);
+
 class Slova : public Thread
 {
 public:
@@ -12,12 +14,12 @@ private:
 	static ID tekID;
 	ID id;
 	
-	//static Semaphore semAB;
+	static Semaphore semAB;
 	virtual void run();
 };
 
 ID Slova::tekID=0;
-//Semaphore Slova::semAB = Semaphore(0);
+Semaphore Slova::semAB = Semaphore(0);
 
 void Slova::run()
 {
@@ -27,12 +29,25 @@ void Slova::run()
 		cout<<"id"<<id<<" i = "<<i<<endl;
 		unlockTake
 		
+		if (id==2 && i==3)
+		{ 
+			semCD.wait();	
+			//dispatch();
+			lockTake
+			cout<<"- id2 poziva wait"<<endl;
+			unlockTake
+		}
+		
 		for (int k = 0; k<10000; ++k)
 			for (int j = 0; j <30000; ++j);
-			
-		//if (id==2 && i==9) semAB.wait();
 	}
-	//if (id==1) semAB.signal();
+	if (id==1)
+	{ 
+		semCD.signal();
+		lockTake
+		cout<<"- id1 poziva signal"<<endl;
+		unlockTake
+	}
 	//exitThread();
 }
 
