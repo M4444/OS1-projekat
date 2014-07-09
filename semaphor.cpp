@@ -2,6 +2,7 @@
 #include "ksem.h"
 #include "thread.h"
 #include "KERNEL.h"
+#include <iostream.h>
 
 //virtual ~Semaphore ();	TODO
 
@@ -24,8 +25,8 @@ void Semaphore::wait()
 	lockTake
 	if(--(myImpl->val)<0)
 	{
+		//cout<<"val je sad: "<<myImpl->val<<endl;
 		myImpl->block();
-		dispatch();
 	}
 	unlockTake
 }

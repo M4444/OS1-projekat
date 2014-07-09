@@ -13,7 +13,7 @@
 
 void Thread::waitToComplete()
 {
-	/*	TODO	*/
+	myPCB->waitThread.wait();
 }
 
 void Thread::start()
@@ -23,6 +23,7 @@ void Thread::start()
 
 Thread::~Thread()
 {
+	//this->waitToComplete();
 	/*	TODO	*/
 }
 
@@ -54,6 +55,7 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 		myPCB->kvant = 0;
 		myPCB->neogranicen = 1;
 	}
+	myPCB->waitThread = Semaphore(0);
 	unlock
 }	
 

@@ -2,8 +2,9 @@
 #ifndef _PCB_h_
 #define _PCB_h_
 
+#include "Semaphore.h"
+
 class Thread;
-//class Semaphore;
 
 class PCB
 {
@@ -21,12 +22,12 @@ private:
 	unsigned neogranicen; 
 	unsigned blokiran;
 	
-	//Semaphore *sem;
+	Semaphore waitThread;
 	
 	static volatile PCB *running; 
 	static void wrapper();
 	
-	friend void interrupt timer();	
+	friend void interrupt timer();
 };
 
 #endif

@@ -4,21 +4,25 @@
 #include "semaphor.h"
 #include <iostream.h>
 
-Semaphore semCD=Semaphore(0);
-
 class Slova : public Thread
 {
 public:
-	Slova(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice){ id = ++tekID; }
+	Slova(char c,StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice)
+	{ ime = c; }
+	Slova(Slova *nit, char c, StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice)
+	{ 
+		ime = c;
+		nitZaWait = nit;
+	}
 private:
-	static ID tekID;
-	ID id;
+	char ime;
 	
 	static Semaphore semAB;
 	virtual void run();
+	
+	Slova *nitZaWait;
 };
 
-ID Slova::tekID=0;
 Semaphore Slova::semAB = Semaphore(0);
 
 void Slova::run()
@@ -26,29 +30,30 @@ void Slova::run()
 	for (int i =0; i < 30; ++i)
 	{
 		lockTake
-		cout<<"id"<<id<<" i = "<<i<<endl;
+		cout<<ime<<" i = "<<i<<endl;
 		unlockTake
 		
-		if (id==2 && i==3)
-		{ 
-			semCD.wait();	
-			//dispatch();
+		if (ime=='b' && i==2)
+		{	
 			lockTake
-			cout<<"- id2 poziva wait"<<endl;
+			//cout<<"- "<<ime<<" poziva wait"<<endl;
+			cout<<"- "<<ime<<" poziva waitToComplete na "<<nitZaWait->ime<<endl;
 			unlockTake
+			//semAB.wait();
+			nitZaWait->waitToComplete();
+			//nitZaWait->Slova::~Slova();
 		}
 		
 		for (int k = 0; k<10000; ++k)
 			for (int j = 0; j <30000; ++j);
 	}
-	if (id==1)
+	if (ime=='c')
 	{ 
-		semCD.signal();
+		semAB.signal();
 		lockTake
-		cout<<"- id1 poziva signal"<<endl;
+		cout<<"- "<<ime<<" poziva signal"<<endl;
 		unlockTake
 	}
-	//exitThread();
 }
 
 volatile int cnt = 0;
@@ -60,12 +65,12 @@ void tick()
 Slova *a,*b,*m;
 void doSomething()
 {
-	lock
-	a = new Slova(1024,40);
+	lock	
+	a = new Slova('a',1024,40);
 	cout<<"napravio a"<<endl;
 	a->start();
 	
-	b = new Slova(1024,20);
+	b = new Slova(a,'b',1024,20);
 	cout<<"napravio b"<<endl;
 	b->start();
 	unlock
