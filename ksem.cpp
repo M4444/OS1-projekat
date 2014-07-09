@@ -1,14 +1,18 @@
-#include "KernelSem.h"
+#include "ksem.h"
+#include "thread.h"
+#include "PCB.h"
+#include <schedule.h>
 
 void KernelSem::block()
 {
-	this.blocked.dodaj(PCB::running);
-	takeCont(izvadi());
+	this->blocked.dodaj((PCB *) PCB::running);
+	//takeContext(izvadi());
+	dispatch();
 }
 
 void KernelSem::deblock()
 {
-	Scheduler::put(this.blocked.izvadi());
+	Scheduler::put(this->blocked.izvadi());
 }
 
 KernelSem::Queue::~Queue()  			// Destruktor.

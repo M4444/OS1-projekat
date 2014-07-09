@@ -1,10 +1,11 @@
-// File: KernelSem.h
-#ifndef _KernelSem_h_
-#define _KernelSem_h_
+// File: ksem.h
+#ifndef _ksem_h_
+#define _ksem_h_
 
-#include "PCB.h"
+//#include "PCB.h"
 
 class Semaphore;
+class PCB;
 
 class KernelSem
 {
@@ -13,7 +14,7 @@ private:
 	Semaphore *mySem;
 	friend class Semaphore;
 	
-	friend class Queue 
+	class Queue 
 	{
 	private:
 		struct Elem							// ELEMENT LISTE:
@@ -27,21 +28,23 @@ private:
 			}
 		};
 		Elem *prvi, *posl;              	// Pokazivac na pocetak i kraj liste.
+	public:  
 		Queue& dodaj(PCB *p) 				// Dodavanje PCB-a.
 		{
-			posl = (!prvi ? prvi : posl->sled) = new Elem(*p);
+			posl = (!prvi ? prvi : posl->sled) = new Elem(p);
 			return *this;
 		}
 		PCB *izvadi()
 		{
-			PCB *i=prvi.pcb;
+			PCB *i=prvi->pcb;
 			prvi = prvi->sled;
 			return i;
-		}
-	public:                                 // Konstruktori:
+		}	
+											// Konstruktori:
 		Queue() { prvi = posl = 0; } 		// - podrazumevani,
 		~Queue();                           // Destruktor.
 	};
+
 	Queue blocked;
 	
 	void block();

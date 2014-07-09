@@ -3,12 +3,14 @@
 #define _PCB_h_
 
 class Thread;
+//class Semaphore;
 
 class PCB
 {
 private:
 	Thread *myThread;
 	friend class Thread;
+	friend class KernelSem;
 	
 	unsigned sp;
 	unsigned ss;
@@ -18,11 +20,13 @@ private:
 	unsigned kvant;
 	unsigned neogranicen; 
 	
+	//Semaphore *sem;
+	
 	static volatile PCB *running; 
 	static void wrapper();
 	
 	friend void interrupt timer();	
-	friend void takeCont(PCB *);
+	friend void takeContext(PCB *);
 };
 
 #endif

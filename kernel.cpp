@@ -56,7 +56,7 @@ void interrupt timer()	//	prekidna rutina
 			PCB::running = Scheduler::get();		// Scheduler
 	  
 			tsp = PCB::running->sp;
-			tss = PCB::running->ss; 
+			tss = PCB::running->ss;
 			tbp = PCB::running->bp;
 
 			brojac = PCB::running->kvant;
@@ -80,7 +80,7 @@ void interrupt timer()	//	prekidna rutina
 	zahtevana_promena_konteksta = 0;
 }
 
-void takeCont(PCB *pcb)
+void takeContext(PCB *pcb)
 {	
 	if (lockFlag)
 	{
@@ -115,7 +115,7 @@ void takeCont(PCB *pcb)
 		PCB::running = pcb;
   
 		tsp = PCB::running->sp;
-		tss = PCB::running->ss; 
+		tss = PCB::running->ss;
 		tbp = PCB::running->bp;
 
 		brojac = PCB::running->kvant;
@@ -128,7 +128,7 @@ void takeCont(PCB *pcb)
 	}
 	else zahtevana_promena_konteksta = 1;	/*	na koju nit?	!!!!	proveriti da li moze doci do izgladnjivanja	*/
 		                                              
-	zahtevana_promena_konteksta = 0;
+	//zahtevana_promena_konteksta = 0;
 }
 
 unsigned oldTimerOFF, oldTimerSEG; // stara prekidna rutina

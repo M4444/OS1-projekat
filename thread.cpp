@@ -7,8 +7,13 @@
 #define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
 
 
-//void waitToComplete(); 	TODO
 //virtual ~Thread();		TODO
+//waitToComplete();			TODO
+
+void Thread::waitToComplete()
+{
+	/*	TODO	*/
+}
 
 void Thread::start()
 {

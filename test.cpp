@@ -1,6 +1,7 @@
 #include "thread.h"
 #include "PCB.h"
 #include "KERNEL.h"
+#include "semaphor.h"
 #include <iostream.h>
 
 class Slova : public Thread
@@ -10,10 +11,13 @@ public:
 private:
 	static ID tekID;
 	ID id;
+	
+	//static Semaphore semAB;
 	virtual void run();
 };
 
 ID Slova::tekID=0;
+//Semaphore Slova::semAB = Semaphore(0);
 
 void Slova::run()
 {
@@ -25,7 +29,10 @@ void Slova::run()
 		
 		for (int k = 0; k<10000; ++k)
 			for (int j = 0; j <30000; ++j);
+			
+		//if (id==2 && i==9) semAB.wait();
 	}
+	//if (id==1) semAB.signal();
 	//exitThread();
 }
 

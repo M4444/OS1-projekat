@@ -1,38 +1,46 @@
 #include "semaphor.h"
+#include "ksem.h"
+#include "thread.h"
 #include "KERNEL.h"
 
 //virtual ~Semaphore ();	TODO
 
-virtual Semaphore::Semaphore (int init=1)
+Semaphore::Semaphore(int init)
 {
+	
 	lock
 	myImpl = new KernelSem();	//	prosledjivanje argumenata kostruktoru moze da poveca vreme zakljucavanja
-	unlock
 	myImpl->mySem = this;
-	myImpl->mySem.val = init;
+	myImpl->val = init;
+	unlock
 }
 
-virtual void wait ()
+Semaphore::~Semaphore()
+{
+	/*	TODO	*/
+}
+
+void Semaphore::wait()
 {
 	lockTake
-	if(--myImpl.val<0)
+	if(--myImpl->val<0)
 	{
-		myImpl.block();
+		myImpl->block();
 	}
 	unlockTake
 }
 
-virtual void signal()
+void Semaphore::signal()
 {
 	lockTake
-	if(myImpl.val++<0)
+	if(myImpl->val++<0)
 	{
-		myImpl.deblock();
+		myImpl->deblock();
 	}
 	unlockTake
 }
 
-int Semaphore::val()
+int Semaphore::val() const
 {	
-	return myImpl.val;
+	return myImpl->val;
 }
