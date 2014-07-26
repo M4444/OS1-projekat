@@ -23,6 +23,6 @@ void restore();
 
 void tick();	//	poziva se u funkciji timer() da bi korisnik bio svestan protoka vremena
 
-int userMain();
+int userMain(int argc, char* argv[]);
 
 #endif

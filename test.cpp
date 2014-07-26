@@ -90,8 +90,16 @@ void doSomething()
 	cout << "Happy End" << endl;
 }
 
-int userMain()
+int userMain(int argc, char* argv[])
 {	
+lock
+	cout<<"Primljeni argumenti: ";
+	for (int ii=1; ii<argc; ii++)
+	{
+		cout<<argv[ii]<<" ";
+	}
+	cout<<endl;
+	unlock
 	doSomething();
 	
 	return 0;

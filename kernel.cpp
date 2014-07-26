@@ -137,32 +137,46 @@ void restore()
 class userMainThread : public Thread
 {
 public:
-	userMainThread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice):Thread(stackSize,timeSlice){}
+	userMainThread(StackSize stackSize = defaultStackSize, Time timeSlice = defaultTimeSlice, int argc, char* argv[]):Thread(stackSize,timeSlice)
+	{ 
+		Uargc = argc; 
+		Uargv = argv;
+	}
 	int uMreturn;
 private:
+	int Uargc;
+	char **Uargv;
 	void run()
 	{
-		uMreturn = userMain();
+		uMreturn = userMain(Uargc, Uargv);
 	}
 };
 
-int main()
+int main(int argc, char	**argv)
 {
 	inic();
 	lock
-	userMainThread *uM = new userMainThread(1024, 20);
+	userMainThread *uM = new userMainThread(1024, 20, argc, argv);
 	cout<<"napravio userMain"<<endl;
 	uM->start();
 	dispatch();
 	unlock
-	for (int i = 0; i < 7; ++i) 
+	lock
+	cout<<"Poslati argumenti: ";
+	for (int ii=1; ii<argc; ii++)
+	{
+		cout<<argv[ii]<<" ";
+	}
+	cout<<endl;
+	unlock
+	for (int i=0; i<7; ++i) 
 	{
 		lock
 		cout<<"main "<<i<<endl;
 		unlock
 
-		for (int j = 0; j< 30000; ++j)
-			for (int k = 0; k < 30000; ++k);
+		for (int j=0; j<30000; ++j)
+			for (int k=0; k<30000; ++k);
 	}
 	cout << "Main Happy End" << endl;
 	restore();
