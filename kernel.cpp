@@ -134,6 +134,34 @@ void restore()
 	}
 }
 
+/*
+typedef void interrupt (*pInterrupt)(...);
+pInterrupt oldRoutine;
+//void interrupt timer(...);
+
+// postavlja novu prekidnu rutinu
+void inic()
+{
+	lock
+			
+	oldRoutine = getvect(0x8);	// 	pamti staru rutinu
+	setvect(0x8, timer);			//	postavlja novu rutinu
+	setvect(0x60, oldRoutine);	//	postavlja staru rutinu na int 60
+	
+	unlock
+}
+
+// vraca staru prekidnu rutinu
+void restore()
+{
+	lock
+	
+	setvect(0x8, oldRoutine);
+		
+	unlock
+	
+}*/
+
 class userMainThread : public Thread
 {
 public:

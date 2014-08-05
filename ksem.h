@@ -27,6 +27,7 @@ private:
 		};
 		Elem *prvi, *posl;              	// Pokazivac na pocetak i kraj liste.
 	public:  
+		//KernelSem();			TODO
 		Queue& dodaj(PCB *p) 				// Dodavanje PCB-a.
 		{
 			posl = (!prvi ? prvi : posl->sled) = new Elem(p);
