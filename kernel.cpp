@@ -140,24 +140,24 @@ pInterrupt oldRoutine;
 //void interrupt timer(...);
 
 // postavlja novu prekidnu rutinu
-void inic()
+void inic2()
 {
 	lock
-			
+	asm cli		
 	oldRoutine = getvect(0x8);	// 	pamti staru rutinu
-	setvect(0x8, timer);			//	postavlja novu rutinu
-	setvect(0x60, oldRoutine);	//	postavlja staru rutinu na int 60
-	
+	setvect(0x8, timer);		//	postavlja novu rutinu
+	setvect(0x8+0x60, oldRoutine);	//	postavlja staru rutinu na int 60
+	asm sti
 	unlock
 }
 
 // vraca staru prekidnu rutinu
-void restore()
+void restore2()
 {
 	lock
-	
+	asm cli	
 	setvect(0x8, oldRoutine);
-		
+	asm sti
 	unlock
 	
 }*/

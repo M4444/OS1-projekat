@@ -5,79 +5,37 @@
 #include "event.h"
 #include "KERNEL.h"
 #include "semaphor.h"
+#include "dos.h"
 
 typedef void interrupt (*pInterrupt)(...);
 
-//	prekidna rutina
-#define PrekidnaRutina(IVTNo, CallOld)\
-void interrupt PrekidnaRutina##IVTNo(...)\
+// Priprema ulaz (PREPAREENTRY)
+#define PREPAREENTRY(IVTNum, CallOld)\
+void interrupt PrekidnaRutina##IVTNum(...)\
 {\
-	Entry##IVTNo.signal();\
-	if(CallOld == 1) asm int OldIVTNo;\
-}
-// postavlja novu prekidnu rutinu
-#define inicE(IVTNo) inic##IVTNo();
-
-#define PostavljanjePR(IVTNo)\
-void inic##IVTNo()\
-{\
-	lock\
-	Entry##IVTNo.setOld(getvect(0x##IVTNo))\
-	setvect(0x##IVTNo, PrekidnaRutina##IVTNo);\
-	setvect(0x##IVTNo+0x60, Entry##IVTNo.getOld());\
-	unlock\
-}
-// vraca staru prekidnu rutinu
-#define restoreE(IVTNo) restore##IVTNo();
-
-#define VracanjePR(IVTNo)\
-void restore##IVTNo()\
-{\
-	lock\
-	setvect(0x##IVTNo, Entry##IVTNo.getOld());\
-	unlock\
-}
-// Priprema ulaz
-#define PREPAREENTRY(IVTNo, CallOld)\
-class IVTEntry##IVTNo : IVTEntry\
-{\
-	IVTEntry##IVTNo(IVTNo ivtNo):IVTEntry(ivtNo)\
-	{\
-		lock\
-		Entry##IVTNo.setOld(getvect(0x##IVTNo))\
-		setvect(0x##IVTNo, PrekidnaRutina##IVTNo);\
-		setvect(0x##IVTNo+0x60, Entry##IVTNo.getOld());\
-		unlock\
-	}\
-	\
-	~IVTEntry##IVTNo(IVTNo ivtNo)\
-	{\
-		lock\
-		setvect(0x##IVTNo, Entry##IVTNo.getOld());\
-		unlock\
-	}\
+	IVTEntry::nizUlaza[IVTNum]->signal();\
+	if(CallOld == 1) IVTEntry::nizUlaza[IVTNum]->CallOldRoutine();\
 }\
-IVTEntry##IVTNo Entry##IVTNo = IVTEntry(IVTNo);\
-\
-PrekidnaRutina(IVTNo, CallOld)
+IVTEntry Entry##IVTNum = IVTEntry(IVTNum, PrekidnaRutina##IVTNum);
 
 class IVTEntry
 {
 public:
-	IVTEntry(IVTNo ivtNo);
+	IVTEntry(IVTNo ivtNo, pInterrupt novaRutina);
+	~IVTEntry();
+	
+	static IVTEntry *nizUlaza[256];
 	
 	static IVTEntry *getIVTEntry(IVTNo num);
 	
 	void wait();
 	void signal();
-	void setOld(pInterrupt old);
-	pInterrupt getOld();
+	void CallOldRoutine();
 private:
 	IVTNo BrUlaza;
-	static IVTEntry *nizUlaza[256];
 	
 	Semaphore sem;
-	pInterrupt oldRoutine;
+	pInterrupt oldRoutine, newRoutine;
 };
 
 #endif

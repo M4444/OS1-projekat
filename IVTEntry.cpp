@@ -1,10 +1,27 @@
 #include "IVTEntry.h"
 
-IVTEntry::IVTEntry(IVTNo ivtNo)
+IVTEntry::IVTEntry(IVTNo ivtNo, pInterrupt novaRutina)
 {
 	BrUlaza = ivtNo;
+	newRoutine = novaRutina;
 	sem = Semaphore(0);
-	nizUlaza[ivtNo] = this;
+	nizUlaza[BrUlaza] = this;
+	
+	lock
+	oldRoutine = getvect(BrUlaza);
+	setvect(BrUlaza, newRoutine);
+	setvect(BrUlaza+60, oldRoutine);
+	unlock
+
+}
+
+IVTEntry::~IVTEntry()
+{
+	nizUlaza[BrUlaza] = 0;
+	
+	lock
+	setvect(BrUlaza, oldRoutine);
+	unlock
 }
 
 IVTEntry *IVTEntry::getIVTEntry(IVTNo num)
@@ -22,14 +39,9 @@ void IVTEntry::signal()
 	sem.signal();
 }
 
-void IVTEntry::setOld(pInterrupt old)
+void IVTEntry::CallOldRoutine()
 {
-	oldRoutine = old;
+	geninterrupt(BrUlaza);
 }
 
-pInterrupt IVTEntry::getOld()
-{
-	return oldRoutine;
-}
-
-IVTEntry *IVTEntry::nizUlaza[256] = {0};
+IVTEntry *IVTEntry::nizUlaza[256] = {0};	/*	!!!!	proveriti da li moze {NULL}	*/
