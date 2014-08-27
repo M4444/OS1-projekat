@@ -19,10 +19,7 @@ Semaphore::Semaphore(int init)
 
 Semaphore::~Semaphore()
 {
-	delete myImpl;		
-	// resen problem brisanja pomocu pakazivaca na semafore
-	// tako da se na stvaraju lokalni objekti koji potom pozivanju destruktore
-	// ne zna se tacno koji je razlog bio za to
+	delete myImpl;
 }
 
 void Semaphore::wait()

@@ -2,7 +2,8 @@
 #ifndef _IVTEntry_h_
 #define _IVTEntry_h_
 
-#include "event.h"
+//#include "event.h"
+typedef unsigned char IVTNo;
 
 typedef void interrupt (*pInterrupt)(...);
 

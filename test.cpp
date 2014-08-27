@@ -166,7 +166,6 @@ int userMain(int argc, char* argv[])
 		cout<<argv[ii]<<" ";
 	}
 	cout<<endl;
-									/*	if (hugeMew == NULL) cout<<iii<<"			NIJE alocirano"<<endl;	*/
 	unlockTake
 	doSomething();
 	

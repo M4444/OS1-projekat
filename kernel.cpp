@@ -42,7 +42,7 @@ void interrupt timer()	//	prekidna rutina
 			PCB::running->bp = tbp;
 			
 			// ispis unutar prekidne rutine
-			lockTake
+			/*lockTake
 			cout << "Promena konteksta!  Brojac = " << brojac << endl; 
 				//	ako neko vec vrsi ispis, lockFlag je vec na 0 
 				//	i zato se nece ni poceti promena konteksta, pa samim tim
@@ -51,7 +51,7 @@ void interrupt timer()	//	prekidna rutina
 			lock //	u nekim slucajevima se desi da se prekidi omoguce unutar cout<<... 
 			lockFlag=1;
 			// kraj ispisa
-			
+			*/
 			if ((!PCB::running->zavrsio) && (!PCB::running->blokiran)) Scheduler::put((PCB *) PCB::running);
 			PCB::running = Scheduler::get();	// Scheduler
 	  
@@ -186,12 +186,13 @@ int main(int argc, char	**argv)
 	inic();
 	lock
 	userMainThread *uM = new userMainThread(1024, 20, argc, argv);
-	if (uM == NULL) return 0;
-	cout<<"napravio userMain"<<endl;
+	unlock
+	if (uM == NULL) return -1;
+	cout<<"userMain created"<<endl;
 	uM->start();
 	dispatch();
-	unlock
-	lock
+	//unlock
+	/*lock
 	cout<<"Poslati argumenti: ";
 	for (int ii=1; ii<argc; ii++)
 	{
@@ -207,7 +208,7 @@ int main(int argc, char	**argv)
 
 		for (int j=0; j<30000; ++j)
 			for (int k=0; k<30000; ++k);
-	}
+	}*/
 	cout << "Main Happy End" << endl;
 	restore();
 	MainReturn = uM->uMreturn;

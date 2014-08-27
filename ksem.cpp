@@ -18,9 +18,6 @@ void KernelSem::block()
 	unsigned uspeh = blocked.dodaj((PCB *) PCB::running);
 	if (uspeh == 1)
 	{
-		lockTake
-		cout<<"Blokiranje na semaforu je uspelo!"<<endl;
-		unlockTake
 		PCB::running->blokiran = 1;
 	}
 	else

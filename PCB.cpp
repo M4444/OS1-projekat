@@ -5,7 +5,7 @@
 #include <_null.h>
 //#include "KERNEL.h"
 
-#define MAX_STACK_SIZE 4096	//	64KB/16B = 4096
+#define MAX_STACK_SIZE 4096
 
 volatile PCB *PCB::running=0;
 

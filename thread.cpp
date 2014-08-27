@@ -18,7 +18,7 @@ void Thread::start()
 
 Thread::~Thread()
 {
-	this->waitToComplete();		/*	sta ako nit pozove sopstveni destruktor?	*/
+	this->waitToComplete();
 	delete myPCB;
 }
 
