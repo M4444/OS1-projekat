@@ -3,9 +3,6 @@
 #define _IVTEntry_h_
 
 #include "event.h"
-#include "KERNEL.h"
-#include "semaphor.h"
-#include "dos.h"
 
 typedef void interrupt (*pInterrupt)(...);
 
@@ -17,6 +14,8 @@ void interrupt PrekidnaRutina##IVTNum(...)\
 	if(CallOld == 1) IVTEntry::nizUlaza[IVTNum]->CallOldRoutine();\
 }\
 IVTEntry Entry##IVTNum = IVTEntry(IVTNum, PrekidnaRutina##IVTNum);
+
+class Semaphore;
 
 class IVTEntry
 {
@@ -34,7 +33,7 @@ public:
 private:
 	IVTNo BrUlaza;
 	
-	Semaphore sem;
+	Semaphore *sem;
 	pInterrupt oldRoutine, newRoutine;
 };
 

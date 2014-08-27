@@ -4,6 +4,7 @@
 #include "semaphor.h"
 #include <iostream.h>
 #include "IVTEntry.h"
+#include "dos.h"
 
 class Slova : public Thread
 {
@@ -49,7 +50,7 @@ void KeyboardEvent::run()
 {
 	lockTake
 	Event event9(9);
-	cout<<"KeyebordListener started!"<<endl;
+	cout<<"Keyebord Listener started!"<<endl;
 	unlockTake
 	char scancode, status, znak; 
 	
@@ -91,15 +92,15 @@ void Slova::run()
 		lockTake
 		cout<<ime<<" i = "<<i<<endl;
 		unlockTake
-		
-		if (ime=='b' && i==2)
+		if (ime=='b' && i==6) nitZaWait->Slova::~Slova();
+		if (ime=='b' && i==300)
 		{	
 			lockTake
 			//cout<<"- "<<ime<<" poziva wait"<<endl;
 			cout<<"- "<<ime<<" poziva waitToComplete na "<<nitZaWait->ime<<endl;
 			unlockTake
 			//semAB.wait();
-			nitZaWait->waitToComplete();
+				nitZaWait->waitToComplete();
 			//nitZaWait->Slova::~Slova();
 		}
 		
@@ -165,6 +166,7 @@ int userMain(int argc, char* argv[])
 		cout<<argv[ii]<<" ";
 	}
 	cout<<endl;
+									/*	if (hugeMew == NULL) cout<<iii<<"			NIJE alocirano"<<endl;	*/
 	unlockTake
 	doSomething();
 	

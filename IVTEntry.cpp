@@ -1,23 +1,36 @@
 #include "IVTEntry.h"
+#include "semaphor.h"
+#include <iostream.h>
+#include "KERNEL.h" 
+#include "dos.h"
 
 IVTEntry::IVTEntry(IVTNo ivtNo, pInterrupt novaRutina)
 {
-	BrUlaza = ivtNo;
-	newRoutine = novaRutina;
-	sem = Semaphore(0);
-	nizUlaza[BrUlaza] = this;
-	
-	lock
-	oldRoutine = getvect(BrUlaza);
-	setvect(BrUlaza, newRoutine);
-	setvect(BrUlaza+60, oldRoutine);
-	unlock
-
+	if (nizUlaza[ivtNo]==NULL || ivtNo==8)
+	{
+		BrUlaza = ivtNo;
+		newRoutine = novaRutina;
+		sem = new Semaphore(0);
+		nizUlaza[BrUlaza] = this;
+		
+		lock
+		oldRoutine = getvect(BrUlaza);
+		setvect(BrUlaza, newRoutine);
+		setvect(BrUlaza+60, oldRoutine);
+		unlock
+	}
+	else 
+	{
+		lockTake
+		cout<<"***Ulaz "<<ivtNo<<" je zauzet!"<<endl;
+		unlockTake
+	}
 }
 
 IVTEntry::~IVTEntry()
 {
-	nizUlaza[BrUlaza] = 0;
+	nizUlaza[BrUlaza] = NULL;
+	delete sem;
 	
 	lock
 	setvect(BrUlaza, oldRoutine);
@@ -31,12 +44,13 @@ IVTEntry *IVTEntry::getIVTEntry(IVTNo num)
 
 void IVTEntry::wait()
 {
-	sem.wait();
+	sem->wait();
 }
 
 void IVTEntry::signal()
 {
-	sem.signal();
+	sem->signal();
+	zahtevana_promena_konteksta = 1;
 }
 
 void IVTEntry::CallOldRoutine()
@@ -44,4 +58,4 @@ void IVTEntry::CallOldRoutine()
 	geninterrupt(BrUlaza);
 }
 
-IVTEntry *IVTEntry::nizUlaza[256] = {0};	/*	!!!!	proveriti da li moze {NULL}	*/
+IVTEntry *IVTEntry::nizUlaza[256] = {NULL};

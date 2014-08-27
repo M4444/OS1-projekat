@@ -3,11 +3,15 @@
 #define _KernelEv_h_
 
 #include "event.h"
-#include "IVTEntry.h"
+
+class Event;
+class IVTEntry;
 
 class KernelEv
-{	
+{
 private:
+	KernelEv(Event *event, IVTNo ivtNo);
+
 	friend class Event;
 	IVTNo ivtNumber;
 	IVTEntry *ulaz;

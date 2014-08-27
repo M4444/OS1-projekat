@@ -12,23 +12,24 @@ private:
 	Semaphore *mySem;
 	friend class Semaphore;
 	
+	KernelSem(Semaphore *semaphore, int init);
+	
 	class Queue 
 	{
 	private:
-		struct Elem							// ELEMENT LISTE:
+		struct Elem					// ELEMENT LISTE
 		{
-			PCB *pcb;                     	// - sadržani PCB,
-			Elem* sled;                    	// - pokazivac na sledeci element,
-			Elem (PCB *p)     				// - konstruktor.
+			PCB *pcb;				// - sadržani PCB
+			Elem* sled;
+			Elem (PCB *p)
 			{ 
 				pcb = p; 
 				sled = 0; 
 			}
 		};
-		Elem *prvi, *posl;              	// Pokazivac na pocetak i kraj liste.
-	public:  
-		//KernelSem();			TODO
-		Queue& dodaj(PCB *p) 				// Dodavanje PCB-a.
+		Elem *prvi, *posl;
+	public:		
+		Queue& dodaj(PCB *p) 		// Dodavanje PCB-a
 		{
 			posl = (!prvi ? prvi : posl->sled) = new Elem(p);
 			return *this;
@@ -39,9 +40,9 @@ private:
 			prvi = prvi->sled;
 			return i;
 		}	
-											// Konstruktori:
-		Queue() { prvi = posl = 0; } 		// - podrazumevani,
-		~Queue();                           // Destruktor.
+		
+		Queue() { prvi = posl = 0; } 
+		~Queue();
 	};
 
 	Queue blocked;

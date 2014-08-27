@@ -2,7 +2,13 @@
 #include "thread.h"
 #include "PCB.h"
 #include <schedule.h>
-#include "KERNEL.h"
+//#include "KERNEL.h"
+
+KernelSem::KernelSem(Semaphore *semaphore, int init)
+{
+	mySem = semaphore;
+	val = init;
+}
 
 void KernelSem::block()
 {
@@ -18,7 +24,7 @@ void KernelSem::deblock()
 	Scheduler::put(izvadjen);
 }
 
-KernelSem::Queue::~Queue()  			// Destruktor.
+KernelSem::Queue::~Queue()
 {           
 	while (prvi) 
 	{	 

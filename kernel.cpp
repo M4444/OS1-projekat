@@ -1,9 +1,9 @@
-#include <iostream.h>
-#include <dos.h>
-#include "thread.h"
-#include "PCB.h"
-#include <schedule.h>
 #include "KERNEL.h"
+#include <iostream.h>
+#include <schedule.h>
+#include "thread.h"
+#include <dos.h>
+#include "PCB.h"
 
 volatile unsigned lockFlag = 1;	//	fleg za zabranu promene konteksta
 // Pomocne promenljive za prekid tajmera
@@ -21,7 +21,7 @@ void interrupt timer()	//	prekidna rutina
 		if(!PCB::running->neogranicen) brojac--;
 		tick();
 	}		
-	if (brojac == 0 && !PCB::running->neogranicen || zahtevana_promena_konteksta) 
+	if (brojac == 0 && !(PCB::running->neogranicen) || zahtevana_promena_konteksta) 
 	{
 		if (lockFlag)
 		{
@@ -53,7 +53,7 @@ void interrupt timer()	//	prekidna rutina
 			// kraj ispisa
 			
 			if ((!PCB::running->zavrsio) && (!PCB::running->blokiran)) Scheduler::put((PCB *) PCB::running);
-			PCB::running = Scheduler::get();		// Scheduler
+			PCB::running = Scheduler::get();	// Scheduler
 	  
 			tsp = PCB::running->sp;
 			tss = PCB::running->ss;
@@ -182,6 +182,7 @@ private:
 
 int main(int argc, char	**argv)
 {
+	int MainReturn;
 	inic();
 	lock
 	userMainThread *uM = new userMainThread(1024, 20, argc, argv);
@@ -208,6 +209,8 @@ int main(int argc, char	**argv)
 	}
 	cout << "Main Happy End" << endl;
 	restore();
+	MainReturn = uM->uMreturn;
+	delete uM;
  
-	return uM->uMreturn;
+	return MainReturn;
 }

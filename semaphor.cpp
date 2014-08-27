@@ -2,22 +2,21 @@
 #include "ksem.h"
 #include "thread.h"
 #include "KERNEL.h"
-#include <iostream.h>
-
-//virtual ~Semaphore ();	TODO
+//#include <iostream.h>
 
 Semaphore::Semaphore(int init)
 {
 	lock
-	myImpl = new KernelSem();	//	prosledjivanje argumenata kostruktoru moze da poveca vreme zakljucavanja
-	myImpl->mySem = this;
-	myImpl->val = init;
+	myImpl = new KernelSem(this, init);
 	unlock
 }
 
 Semaphore::~Semaphore()
 {
-	/*	TODO	*/
+	delete myImpl;		
+	// resen problem brisanja pomocu pakazivaca na semafore
+	// tako da se na stvaraju lokalni objekti koji potom pozivanju destruktore
+	// ne zna se tacno koji je razlog bio za to
 }
 
 void Semaphore::wait()
@@ -25,7 +24,6 @@ void Semaphore::wait()
 	lockTake
 	if(--(myImpl->val)<0)
 	{
-		//cout<<"val je sad: "<<myImpl->val<<endl;
 		myImpl->block();
 	}
 	unlockTake

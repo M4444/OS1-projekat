@@ -2,6 +2,8 @@
 #ifndef _KERNEL_h_
 #define _KERNEL_h_
 
+#include "thread.h"
+
 // Zabranjuje prekide
 #define lock asm cli
 

@@ -2,9 +2,9 @@
 #ifndef _PCB_h_
 #define _PCB_h_
 
-#include "Semaphore.h"
+#include "thread.h"
 
-class Thread;
+class Semaphore;
 
 class PCB
 {
@@ -12,6 +12,8 @@ private:
 	Thread *myThread;
 	friend class Thread;
 	friend class KernelSem;
+	
+	unsigned *stack;
 	
 	unsigned sp;
 	unsigned ss;
@@ -22,7 +24,10 @@ private:
 	unsigned neogranicen; 
 	unsigned blokiran;
 	
-	Semaphore waitThread;
+	Semaphore *waitThread;
+	
+	PCB(Thread *thread, StackSize stackSize, Time timeSlice);
+	~PCB();
 	
 	static volatile PCB *running; 
 	static void wrapper();
