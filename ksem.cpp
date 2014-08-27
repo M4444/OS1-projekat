@@ -1,7 +1,9 @@
 #include "ksem.h"
 #include "thread.h"
 #include "PCB.h"
+#include "KERNEL.h"
 #include <schedule.h>
+#include <iostream.h>
 //#include "KERNEL.h"
 
 KernelSem::KernelSem(Semaphore *semaphore, int init)
@@ -12,8 +14,21 @@ KernelSem::KernelSem(Semaphore *semaphore, int init)
 
 void KernelSem::block()
 {
-	this->blocked.dodaj((PCB *) PCB::running);
-	PCB::running->blokiran = 1;
+	//this->blocked.dodaj((PCB *) PCB::running);
+	unsigned uspeh = blocked.dodaj((PCB *) PCB::running);
+	if (uspeh == 1)
+	{
+		lockTake
+		cout<<"Blokiranje na semaforu je uspelo!"<<endl;
+		unlockTake
+		PCB::running->blokiran = 1;
+	}
+	else
+	{
+		lockTake
+		cout<<"***Blokiranje na semaforu nije uspelo!"<<endl;
+		unlockTake
+	}
 	dispatch();
 }
 

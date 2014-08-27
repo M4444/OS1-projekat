@@ -2,6 +2,8 @@
 #ifndef _ksem_h_
 #define _ksem_h_
 
+#include <_null.h>
+
 class Semaphore;
 class PCB;
 
@@ -19,7 +21,7 @@ private:
 	private:
 		struct Elem					// ELEMENT LISTE
 		{
-			PCB *pcb;				// - sadržani PCB
+			PCB *pcb;				// - PCB
 			Elem* sled;
 			Elem (PCB *p)
 			{ 
@@ -29,10 +31,15 @@ private:
 		};
 		Elem *prvi, *posl;
 	public:		
-		Queue& dodaj(PCB *p) 		// Dodavanje PCB-a
+		unsigned dodaj(PCB *p) 		// Dodavanje PCB-a
 		{
-			posl = (!prvi ? prvi : posl->sled) = new Elem(p);
-			return *this;
+			Elem *novi = new Elem(p);
+			if (novi != NULL)
+			{
+				posl = (!prvi ? prvi : posl->sled) = novi;
+				return 1;
+			}
+			else return 0;
 		}
 		PCB *izvadi()
 		{

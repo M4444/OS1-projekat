@@ -4,7 +4,7 @@
 #include <schedule.h>
 #include "Semaphore.h"
 //#include <dos.h>
-//#include <iostream.h>
+#include <iostream.h>
 
 void Thread::waitToComplete()
 {
@@ -27,6 +27,12 @@ Thread::Thread(StackSize stackSize, Time timeSlice)
 	lock
 	myPCB = new PCB(this, stackSize, timeSlice);
 	unlock
+	if (myPCB == NULL)
+	{
+		lockTake
+		cout<<"***Alokacija NITI nije uspela!"<<endl;
+		unlockTake
+	}
 }	
 
 void dispatch()	 // sinhrona promena konteksta 

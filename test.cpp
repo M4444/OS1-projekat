@@ -92,7 +92,7 @@ void Slova::run()
 		lockTake
 		cout<<ime<<" i = "<<i<<endl;
 		unlockTake
-		if (ime=='b' && i==6) nitZaWait->Slova::~Slova();
+		if (ime=='b' && i==6) this->Slova::~Slova();
 		if (ime=='b' && i==300)
 		{	
 			lockTake

@@ -8,16 +8,25 @@ IVTEntry::IVTEntry(IVTNo ivtNo, pInterrupt novaRutina)
 {
 	if (nizUlaza[ivtNo]==NULL || ivtNo==8)
 	{
-		BrUlaza = ivtNo;
-		newRoutine = novaRutina;
 		sem = new Semaphore(0);
-		nizUlaza[BrUlaza] = this;
-		
-		lock
-		oldRoutine = getvect(BrUlaza);
-		setvect(BrUlaza, newRoutine);
-		setvect(BrUlaza+60, oldRoutine);
-		unlock
+		if (sem != NULL)
+		{
+			BrUlaza = ivtNo;
+			newRoutine = novaRutina;
+			nizUlaza[BrUlaza] = this;
+			
+			lock
+			oldRoutine = getvect(BrUlaza);
+			setvect(BrUlaza, newRoutine);
+			setvect(BrUlaza+60, oldRoutine);
+			unlock
+		}
+		else 
+		{
+			lockTake
+			cout<<"***Alokacija IVT ULAZA nije uspela!"<<endl;
+			unlockTake
+		}
 	}
 	else 
 	{

@@ -186,6 +186,7 @@ int main(int argc, char	**argv)
 	inic();
 	lock
 	userMainThread *uM = new userMainThread(1024, 20, argc, argv);
+	if (uM == NULL) return 0;
 	cout<<"napravio userMain"<<endl;
 	uM->start();
 	dispatch();

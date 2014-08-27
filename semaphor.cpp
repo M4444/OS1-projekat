@@ -2,13 +2,19 @@
 #include "ksem.h"
 #include "thread.h"
 #include "KERNEL.h"
-//#include <iostream.h>
+#include <iostream.h>
 
 Semaphore::Semaphore(int init)
 {
 	lock
 	myImpl = new KernelSem(this, init);
 	unlock
+	if (myImpl == NULL)
+	{
+		lockTake
+		cout<<"***Alokacija SEMAFORA nije uspela!"<<endl;
+		unlockTake
+	}
 }
 
 Semaphore::~Semaphore()
